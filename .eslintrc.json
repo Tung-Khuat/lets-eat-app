@@ -1,5 +1,5 @@
 {
-   "extends": ["plugin:storybook/recommended", "eslint:recommended"],
+   "extends": ["react-app", "eslint:recommended"],
    "globals": {
       "React": "readonly"
    },
