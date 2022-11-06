@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import styled from 'styled-components'
 
 const InputFieldContainer = styled.div`
@@ -20,6 +20,7 @@ const FieldLabel = styled.label<any>`
    transform: translateY(${({ isRaised }) => (isRaised ? '0' : '-50%')});
    font-size: ${({ isRaised }) => (isRaised ? '0.7em' : '1em')};
    transition: 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+   cursor: text;
 `
 const InputField = styled.input`
    width: 100%;
@@ -59,6 +60,7 @@ const TextField: React.FC<ITextField> = ({
    ...props
 }) => {
    const [isFocused, setIsFocused] = useState(false)
+   const inputRef = useRef<any>(null)
 
    return (
       <InputFieldContainer
@@ -66,12 +68,13 @@ const TextField: React.FC<ITextField> = ({
          onBlur={() => setIsFocused(false)}
       >
          <FieldLabel
-            isFocused={isFocused}
+            onClick={() => inputRef.current && inputRef.current.focus()}
             isRaised={isFocused || value?.length > 0}
          >
             <span>{label}</span>
          </FieldLabel>
          <InputField
+            ref={inputRef}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
