@@ -1,7 +1,10 @@
-import { useRef, useState } from 'react'
+import { FiberManualRecord } from '@mui/icons-material'
+import { ReactNode, useRef, useState } from 'react'
 import styled from 'styled-components'
 
-const InputFieldContainer = styled.div`
+const MAX_LENGTH = 250
+
+const TextFieldContainer = styled.div<any>`
    display: block;
    position: relative;
    width: 100%;
@@ -10,6 +13,10 @@ const InputFieldContainer = styled.div`
    border-radius: 16px;
    color: var(--color-text-base);
    background-color: var(--color-fill-accent);
+   box-shadow: ${({ isFocused }) =>
+      isFocused
+         ? '0 0 0 1px var(--color-text-highlight), 0 0 4px 2px var(--color-text-highlight)'
+         : 'none'};
 `
 const FieldLabel = styled.label<any>`
    position: absolute;
@@ -21,6 +28,10 @@ const FieldLabel = styled.label<any>`
    font-size: ${({ isRaised }) => (isRaised ? '0.7em' : '1em')};
    transition: 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
    cursor: text;
+`
+const InputContainer = styled.div`
+   height: 100%;
+   display: flex;
 `
 const InputField = styled.input`
    width: 100%;
@@ -34,8 +45,25 @@ const InputField = styled.input`
    box-sizing: border-box;
    &:focus-visible {
       outline: none;
-      box-shadow: 0 0 0 1px var(--color-text-highlight),
-         0 0 4px 2px var(--color-text-highlight);
+   }
+`
+const InputAdornment = styled.div<any>`
+   height: 100%;
+   max-width: 50px;
+   display: grid;
+   justify-content: center;
+   place-items: center;
+   padding: ${({ hasItem }) => (hasItem ? '16px' : 0)};
+   box-sizing: border-box;
+`
+const RequiredAsterisk = styled.span`
+   height: 100%;
+   display: flex;
+   place-items: top;
+   & svg {
+      font-size: 5px;
+      color: var(--color-text-highlight) !important;
+      opacity: 0.7;
    }
 `
 
@@ -47,6 +75,9 @@ export interface ITextField {
    required?: boolean
    readOnly?: boolean
    type?: string
+   maxLength?: number
+   startAdornment?: ReactNode
+   endAdornment?: ReactNode
 }
 
 const TextField: React.FC<ITextField> = ({
@@ -57,33 +88,50 @@ const TextField: React.FC<ITextField> = ({
    required = false,
    readOnly = false,
    type = 'text',
+   startAdornment,
+   endAdornment,
+   maxLength = MAX_LENGTH,
    ...props
 }) => {
    const [isFocused, setIsFocused] = useState(false)
    const inputRef = useRef<any>(null)
-
    return (
-      <InputFieldContainer
+      <TextFieldContainer
          onFocus={() => setIsFocused(true)}
          onBlur={() => setIsFocused(false)}
+         isFocused={isFocused}
       >
          <FieldLabel
             onClick={() => inputRef.current && inputRef.current.focus()}
             isRaised={isFocused || value?.length > 0}
          >
-            <span>{label}</span>
+            <div style={{ display: 'flex', gap: 2 }}>
+               {label}
+               <RequiredAsterisk>
+                  <FiberManualRecord />
+               </RequiredAsterisk>
+            </div>
          </FieldLabel>
-         <InputField
-            ref={inputRef}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            required={required}
-            readOnly={readOnly}
-            type={type}
-            {...props}
-         />
-      </InputFieldContainer>
+         <InputContainer>
+            <InputAdornment hasItem={startAdornment}>
+               {startAdornment ? startAdornment : null}
+            </InputAdornment>
+            <InputField
+               ref={inputRef}
+               value={value}
+               onChange={(e) => onChange(e.target.value)}
+               placeholder={placeholder}
+               required={required}
+               readOnly={readOnly}
+               type={type}
+               maxLength={maxLength}
+               {...props}
+            />
+            <InputAdornment hasItem={endAdornment}>
+               {endAdornment ? endAdornment : null}
+            </InputAdornment>
+         </InputContainer>
+      </TextFieldContainer>
    )
 }
 
