@@ -5,7 +5,7 @@ const StyledButton = styled.button`
    color: var(--color-text-base);
    background-color: var(--color-button-accent);
    padding: 12px 16px;
-   border-radius: 8px;
+   border-radius: 16px;
    cursor: pointer;
    border: none;
    min-width: 100px;
@@ -18,10 +18,19 @@ const StyledButton = styled.button`
 export interface IFilledButton {
    children: ReactNode
    onClick: React.MouseEventHandler
+   [x: string]: any
 }
 
-const FilledButton: React.FC<IFilledButton> = ({ children, onClick }) => {
-   return <StyledButton onClick={onClick}>{children}</StyledButton>
+const FilledButton: React.FC<IFilledButton> = ({
+   children,
+   onClick,
+   ...props
+}) => {
+   return (
+      <StyledButton {...props} onClick={onClick}>
+         {children}
+      </StyledButton>
+   )
 }
 
 export default FilledButton
