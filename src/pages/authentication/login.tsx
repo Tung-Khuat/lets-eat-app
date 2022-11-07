@@ -1,3 +1,5 @@
+import { Mail, Visibility, VisibilityOff } from '@mui/icons-material'
+import { IconButton } from '@mui/material'
 import { useState } from 'react'
 import styled from 'styled-components'
 import FoodBackground from '../../assets/foodbackground2.jpg'
@@ -24,6 +26,13 @@ const LoginForm = styled.form`
    flex-direction: column;
    gap: 16px;
 `
+const PasswordIconButton = styled(IconButton)`
+   color: var(--color-text-muted);
+   transform: translateY(-4px);
+   &:hover svg {
+      color: var(--color-text-base);
+   }
+`
 
 const LoginPage = () => {
    const [loginDetails, setLoginDetails] = useState({
@@ -31,6 +40,7 @@ const LoginPage = () => {
       password: '',
    })
    const [helperText, setHelperText] = useState('')
+   const [showPassword, setShowPassword] = useState(false)
 
    const updateInputValue = (value: object) => {
       setLoginDetails({ ...loginDetails, ...value })
@@ -88,6 +98,7 @@ const LoginPage = () => {
                   onChange={(value: string) =>
                      updateInputValue({ email: value })
                   }
+                  endAdornment={<Mail />}
                />
                <TextField
                   label="Password"
@@ -95,7 +106,16 @@ const LoginPage = () => {
                   onChange={(value: string) =>
                      updateInputValue({ password: value })
                   }
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
+                  endAdornment={
+                     <PasswordIconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                        onMouseDown={(e) => e.preventDefault()}
+                     >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                     </PasswordIconButton>
+                  }
                />
                <FilledButton style={{ height: 64 }} onClick={handleSubmit}>
                   Log In

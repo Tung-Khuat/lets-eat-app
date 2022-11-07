@@ -13,7 +13,7 @@ import {
 import ContentWithImageBackgroundLayout from '../layouts/ContentWithImageBackgroundLayout'
 import { EMAIL_REGEX, MIN_PASSWORD_LENGTH, PASSWORD_REGEX } from './config'
 
-const LoginSection = styled.section`
+const SignUpSection = styled.section`
    display: flex;
    justify-content: center;
    flex-direction: column;
@@ -21,7 +21,7 @@ const LoginSection = styled.section`
    padding: 5vw;
    background-color: var(--color-fill);
 `
-const LoginForm = styled.form`
+const SignUpForm = styled.form`
    display: flex;
    flex-direction: column;
    gap: 16px;
@@ -81,7 +81,7 @@ const SignUpPage = () => {
 
    return (
       <ContentWithImageBackgroundLayout bgImage={FoodBackground}>
-         <LoginSection>
+         <SignUpSection>
             <PageTitle>
                Create new account
                <span
@@ -96,7 +96,7 @@ const SignUpPage = () => {
             <Subtitle>
                Already have an account? <StyledLink>Log In</StyledLink>
             </Subtitle>
-            <LoginForm onSubmit={handleSubmit}>
+            <SignUpForm onSubmit={handleSubmit}>
                <div style={{ display: 'flex', gap: 16 }}>
                   <TextField
                      label="First Name"
@@ -132,7 +132,7 @@ const SignUpPage = () => {
                   onChange={(value: string) =>
                      updateInputValue({ password: value })
                   }
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   endAdornment={
                      <PasswordIconButton
                         aria-label="toggle password visibility"
@@ -147,9 +147,9 @@ const SignUpPage = () => {
                <FilledButton style={{ height: 64 }} onClick={handleSubmit}>
                   Sign Up
                </FilledButton>
-            </LoginForm>
+            </SignUpForm>
             {helperText && helperText}
-         </LoginSection>
+         </SignUpSection>
       </ContentWithImageBackgroundLayout>
    )
 }
