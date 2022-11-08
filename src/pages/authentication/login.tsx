@@ -89,7 +89,8 @@ const LoginPage = () => {
                </span>
             </PageTitle>
             <Subtitle>
-               Don't have an account? <StyledLink>Sign up here</StyledLink>
+               Don't have an account?{' '}
+               <StyledLink to="/signup">Sign up here</StyledLink>
             </Subtitle>
             <LoginForm onSubmit={handleSubmit}>
                <TextField
@@ -122,7 +123,9 @@ const LoginPage = () => {
                </FilledButton>
             </LoginForm>
             {helperText && helperText}
-            <StyledLink>Forgot your password?</StyledLink>
+            <StyledLink to="/password-recovery">
+               Forgot your password?
+            </StyledLink>
          </LoginSection>
       </ContentWithImageBackgroundLayout>
    )

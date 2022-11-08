@@ -94,7 +94,8 @@ const SignUpPage = () => {
                </span>
             </PageTitle>
             <Subtitle>
-               Already have an account? <StyledLink>Log In</StyledLink>
+               Already have an account?{' '}
+               <StyledLink to="/login">Log In</StyledLink>
             </Subtitle>
             <SignUpForm onSubmit={handleSubmit}>
                <div style={{ display: 'flex', gap: 16 }}>

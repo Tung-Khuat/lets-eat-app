@@ -77,7 +77,7 @@ const PasswordRecoveryPage = () => {
                </FilledButton>
             </LoginForm>
             {helperText && helperText}
-            <StyledLink>Back to sign in.</StyledLink>
+            <StyledLink to="/login">Back to sign in.</StyledLink>
          </LoginSection>
       </ContentWithImageBackgroundLayout>
    )
