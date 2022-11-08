@@ -1,0 +1,58 @@
+@import-normalize;
+
+@layer base {
+   :root {
+      /* palette */
+      --color-accent1: #282a37;
+      --color-accent2: #323645;
+      --color-accent3: #6c757d;
+      --color-accent4: #ff8360;
+      --color-accent5: #e9ecef;
+      --color-accent6: #f8f9fa;
+      --color-accent7: #e63946;
+
+      /* text */
+      --color-text-base: #f8f9fa;
+      --color-text-inverted: #282a37;
+      --color-text-muted: #d3dce696;
+      --color-text-danger: #f8f9fa;
+      --color-text-accent: #e9ecef;
+      --color-text-highlight: #ff8360;
+
+      /* background */
+      --color-fill: #282a37;
+      --color-fill-inverted: #f8f9fa;
+      --color-fill-accent: #323645;
+      --color-fill-danger: #e63946;
+
+      /* buttons */
+      --color-button-accent: #ff8360;
+      --color-button-accent-hover: #ff8360;
+
+      /* breakpoints */
+      --breakpoint-large-screen: 1250;
+   }
+}
+
+html {
+   background: var(--color-fill);
+   font-family: 'Montserrat', 'Trebuchet MS', 'Lucida Sans Unicode',
+      'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+   color: var(--color-text-base);
+   font-size: 16px;
+}
+
+button {
+   font-family: 'Montserrat', 'Trebuchet MS', 'Lucida Sans Unicode',
+      'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+   font-weight: 500;
+   font-size: 1.05rem;
+}
+
+body {
+   margin: 0;
+}
+
+* {
+   box-sizing: border-box;
+}
