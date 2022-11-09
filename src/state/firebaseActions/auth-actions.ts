@@ -2,6 +2,7 @@ import { FirebaseError } from 'firebase/app'
 import {
    createUserWithEmailAndPassword,
    GoogleAuthProvider,
+   sendPasswordResetEmail,
    signInWithEmailAndPassword,
    signInWithPopup,
    signOut,
@@ -32,13 +33,14 @@ export const _logInWithEmailAndPassword = async (
 ) => {
    try {
       const response = await signInWithEmailAndPassword(auth, email, password)
-      console.log({ response })
+      return response
    } catch (err) {
       if (err instanceof FirebaseError) {
          const errorMessage = getAuthErrorMessageFromCode(err as FirebaseError)
          console.error(errorMessage)
          callbackErrorMessage && callbackErrorMessage(errorMessage)
       }
+      return false
    }
 }
 
@@ -73,16 +75,40 @@ export const _signUpWithEmailAndPassword = async (
    callbackErrorMessage?: callbackFunction
 ) => {
    try {
-      await createUserWithEmailAndPassword(auth, email, password)
+      const response = await createUserWithEmailAndPassword(
+         auth,
+         email,
+         password
+      )
+      return response
    } catch (err) {
       if (err instanceof FirebaseError) {
          const errorMessage = getAuthErrorMessageFromCode(err as FirebaseError)
          console.error(errorMessage)
          callbackErrorMessage && callbackErrorMessage(errorMessage)
       }
+      return false
    }
 }
 
 export const _logout = () => {
    signOut(auth)
+}
+
+export const _sendPasswordResetWithEmail = async (
+   email: string,
+   callbackErrorMessage: callbackFunction
+) => {
+   try {
+      await sendPasswordResetEmail(auth, email)
+
+      return true
+   } catch (err) {
+      if (err instanceof FirebaseError) {
+         const errorMessage = getAuthErrorMessageFromCode(err as FirebaseError)
+         console.error(errorMessage)
+         callbackErrorMessage && callbackErrorMessage(errorMessage)
+      }
+      return false
+   }
 }
