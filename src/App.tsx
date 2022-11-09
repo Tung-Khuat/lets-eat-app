@@ -1,8 +1,10 @@
 import { Suspense } from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import FullViewLoading from './components/feedback/loadingIndicators/FullViewLoading'
+import PrivateRoute from './PrivateRoute'
 import routes from './routes'
-interface IRoute {
+
+export interface IRoute {
    title: string
    path: string
    component: JSX.Element
@@ -10,6 +12,7 @@ interface IRoute {
    isPublic: boolean
    category: string
 }
+
 type createRouteElementFunc = (route: IRoute, index: any) => any
 
 function App() {
@@ -23,6 +26,15 @@ function App() {
          key: route.path,
          path: route.path,
          element: route.component,
+      }
+
+      if (!route.isPublic) {
+         return (
+            <Route
+               {...routeProps}
+               element={<PrivateRoute element={route.component} />}
+            />
+         )
       }
 
       return <Route {...routeProps} />

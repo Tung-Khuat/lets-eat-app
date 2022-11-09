@@ -5,6 +5,7 @@ const PasswordRecovery = lazy(
    () => import('./pages/authentication/password-recovery')
 )
 const SignUp = lazy(() => import('./pages/authentication/signup'))
+const Dashboard = lazy(() => import('./pages/dashboard'))
 
 const routes = [
    // Auth
@@ -31,6 +32,16 @@ const routes = [
       category: 'auth',
       disabled: false,
       isPublic: true,
+   },
+
+   // Dashboard
+   {
+      title: 'Dashboard',
+      component: <Dashboard />,
+      path: '/',
+      category: 'dashboard',
+      disabled: false,
+      isPublic: false,
    },
 ]
 
