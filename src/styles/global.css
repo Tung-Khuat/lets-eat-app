@@ -33,26 +33,23 @@
       --breakpoint-large-screen: 1250;
    }
 }
+* {
+   box-sizing: border-box;
+   font-family: 'Montserrat', 'Trebuchet MS', 'Lucida Sans Unicode',
+      'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
 
 html {
    background: var(--color-fill);
-   font-family: 'Montserrat', 'Trebuchet MS', 'Lucida Sans Unicode',
-      'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
    color: var(--color-text-base);
    font-size: 16px;
 }
 
 button {
-   font-family: 'Montserrat', 'Trebuchet MS', 'Lucida Sans Unicode',
-      'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
    font-weight: 500;
    font-size: 1.05rem;
 }
 
 body {
    margin: 0;
-}
-
-* {
-   box-sizing: border-box;
 }

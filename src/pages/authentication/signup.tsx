@@ -1,15 +1,30 @@
-import { Badge, Mail, Visibility, VisibilityOff } from '@mui/icons-material'
+import {
+   Badge,
+   ErrorOutline,
+   Mail,
+   Visibility,
+   VisibilityOff,
+} from '@mui/icons-material'
 import { IconButton } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { connect } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { bindActionCreators, compose } from 'redux'
 import styled from 'styled-components'
 import FoodBackground from '../../assets/foodbackground5.jpg'
 import FilledButton from '../../components/buttons/FilledButtons'
+import HelperTextField from '../../components/feedback/helperTexts/HelperTextField'
 import TextField from '../../components/inputs/TextField'
+import { ThemedBaseColorCircleProgress } from '../../components/StyledComponents/common'
 import {
    PageTitle,
    StyledLink,
    Subtitle,
 } from '../../components/StyledComponents/typography'
+import { _signUpWithEmailAndPassword } from '../../state/firebaseActions/auth-actions'
+import * as userActions from '../../state/firebaseActions/user-actions'
+import { auth } from '../../state/store'
 import ContentWithImageBackgroundLayout from '../layouts/ContentWithImageBackgroundLayout'
 import { EMAIL_REGEX, MIN_PASSWORD_LENGTH, PASSWORD_REGEX } from './config'
 
@@ -37,7 +52,11 @@ const PasswordIconButton = styled(IconButton)`
    }
 `
 
-const SignUpPage = () => {
+interface ISignUpPage {
+   _createUser: (user: userActions.INewUser) => void
+}
+
+const SignUpPage = ({ _createUser }: ISignUpPage) => {
    const [signUpDetails, setSignUpDetails] = useState({
       firstName: '',
       lastName: '',
@@ -46,16 +65,50 @@ const SignUpPage = () => {
    })
    const [showPassword, setShowPassword] = useState(false)
    const [helperText, setHelperText] = useState('')
+   const [processing, setProcessing] = useState(false)
+   const [user, loading] = useAuthState(auth)
+   const navigate = useNavigate()
+
+   useEffect(() => {
+      if (loading) return
+      if (user) navigate('/')
+   }, [user, loading])
 
    const updateInputValue = (value: object) => {
       setSignUpDetails({ ...signUpDetails, ...value })
    }
 
-   const handleSubmit = (e: any) => {
+   const handleSubmit = async (e: any) => {
       e.preventDefault()
       const validForm = validateForm()
       if (validForm) {
-         console.log(signUpDetails)
+         setProcessing(true)
+
+         const userCredential = await _signUpWithEmailAndPassword(
+            signUpDetails,
+            (errorMessage) => setHelperText(errorMessage)
+         )
+
+         if (userCredential) {
+            const { uid, email, metadata } = userCredential.user
+            const { firstName, lastName } = signUpDetails
+            const newUserData = {
+               uid,
+               email,
+               metadata,
+               firstName,
+               lastName,
+               displayName: `${firstName} ${lastName}`,
+            }
+
+            try {
+               await _createUser(newUserData)
+            } catch (error) {
+               console.error({ error })
+            }
+         }
+
+         setProcessing(false)
       }
    }
 
@@ -146,13 +199,28 @@ const SignUpPage = () => {
                   maxLength={100}
                />
                <FilledButton style={{ height: 64 }} onClick={handleSubmit}>
-                  Sign Up
+                  {processing ? (
+                     <ThemedBaseColorCircleProgress size={24} />
+                  ) : (
+                     'Sign Up'
+                  )}
                </FilledButton>
             </SignUpForm>
-            {helperText && helperText}
+            {helperText && (
+               <HelperTextField type={'error'}>
+                  <ErrorOutline style={{ marginRight: 8 }} />
+                  {helperText}
+               </HelperTextField>
+            )}
          </SignUpSection>
       </ContentWithImageBackgroundLayout>
    )
 }
 
-export default SignUpPage
+const mapDispatchToProps = (dispatch: any) => ({
+   _createUser: bindActionCreators(userActions._createUser, dispatch),
+})
+
+export default compose<React.FunctionComponent>(
+   connect(null, mapDispatchToProps)
+)(SignUpPage)

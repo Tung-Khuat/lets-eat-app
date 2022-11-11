@@ -1,15 +1,26 @@
-import { Mail, Visibility, VisibilityOff } from '@mui/icons-material'
+import {
+   ErrorOutline,
+   Mail,
+   Visibility,
+   VisibilityOff,
+} from '@mui/icons-material'
 import { IconButton } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import FoodBackground from '../../assets/foodbackground2.jpg'
 import FilledButton from '../../components/buttons/FilledButtons'
+import HelperTextField from '../../components/feedback/helperTexts/HelperTextField'
 import TextField from '../../components/inputs/TextField'
+import { ThemedBaseColorCircleProgress } from '../../components/StyledComponents/common'
 import {
    PageTitle,
    StyledLink,
    Subtitle,
 } from '../../components/StyledComponents/typography'
+import { _logInWithEmailAndPassword } from '../../state/firebaseActions/auth-actions'
+import { auth } from '../../state/store'
 import ContentWithImageBackgroundLayout from '../layouts/ContentWithImageBackgroundLayout'
 import { EMAIL_REGEX, MIN_PASSWORD_LENGTH, PASSWORD_REGEX } from './config'
 
@@ -25,6 +36,9 @@ const LoginForm = styled.form`
    display: flex;
    flex-direction: column;
    gap: 16px;
+   & svg {
+      color: var(--color-text-muted);
+   }
 `
 const PasswordIconButton = styled(IconButton)`
    color: var(--color-text-muted);
@@ -41,16 +55,30 @@ const LoginPage = () => {
    })
    const [helperText, setHelperText] = useState('')
    const [showPassword, setShowPassword] = useState(false)
+   const [processing, setProcessing] = useState(false)
+   const [user, loading] = useAuthState(auth)
+   const navigate = useNavigate()
+
+   useEffect(() => {
+      if (loading) return
+      if (user) navigate('/')
+   }, [user, loading])
 
    const updateInputValue = (value: object) => {
       setLoginDetails({ ...loginDetails, ...value })
    }
 
-   const handleSubmit = (e: any) => {
+   const handleSubmit = async (e: any) => {
       e.preventDefault()
       const validForm = validateForm()
       if (validForm) {
-         console.log(loginDetails)
+         setProcessing(true)
+
+         await _logInWithEmailAndPassword(loginDetails, (errorMessage) =>
+            setHelperText(errorMessage)
+         )
+
+         setProcessing(false)
       }
    }
 
@@ -119,10 +147,19 @@ const LoginPage = () => {
                   }
                />
                <FilledButton style={{ height: 64 }} onClick={handleSubmit}>
-                  Log In
+                  {processing ? (
+                     <ThemedBaseColorCircleProgress size={24} />
+                  ) : (
+                     'Login'
+                  )}
                </FilledButton>
             </LoginForm>
-            {helperText && helperText}
+            {helperText && (
+               <HelperTextField type={'error'}>
+                  <ErrorOutline style={{ marginRight: 8 }} />
+                  {helperText}
+               </HelperTextField>
+            )}
             <StyledLink to="/password-recovery">
                Forgot your password?
             </StyledLink>
