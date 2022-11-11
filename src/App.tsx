@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { firestoreConnect } from 'react-redux-firebase'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
@@ -97,7 +97,7 @@ const mapState = ({
    UsersFoundWithAuthUID,
 })
 
-export default compose(
+export default compose<React.FunctionComponent>(
    connect(mapUserUUIDState),
    firestoreConnect(
       ({ currentLocalAuthUserUID }: { currentLocalAuthUserUID: string }) => {
