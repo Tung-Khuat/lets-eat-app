@@ -1,17 +1,12 @@
 import { FirebaseError } from 'firebase/app'
 import {
    createUserWithEmailAndPassword,
-   GoogleAuthProvider,
    sendPasswordResetEmail,
    signInWithEmailAndPassword,
-   signInWithPopup,
    signOut,
 } from 'firebase/auth'
-import { addDoc, collection, getDocs, query, where } from 'firebase/firestore'
 import { getAuthErrorMessageFromCode } from '../../utils/firebaseErrorCodeTranslator'
-import { auth, db } from '../store'
-
-const googleProvider = new GoogleAuthProvider()
+import { auth, functions } from '../store'
 
 interface ILoginDetails {
    email: string
@@ -19,21 +14,21 @@ interface ILoginDetails {
 }
 
 interface ISignUpDetails {
-   firstName: string
-   lastName: string
    email: string
    password: string
 }
 
-type callbackFunction = (errorMessage: string) => void
+export type errorMessageCallbackFunction = (errorMessage: string) => void
 
-export const _logInWithEmailAndPassword = async (
-   { email, password }: ILoginDetails,
-   callbackErrorMessage?: callbackFunction
+const _updateUserInfoOnSignin = async (
+   updatedUser: any,
+   uid: string,
+   callbackErrorMessage?: errorMessageCallbackFunction
 ) => {
    try {
-      const response = await signInWithEmailAndPassword(auth, email, password)
-      return response
+      const updateUser = functions.httpsCallable('updateUser')
+      const result = await updateUser({ ...updatedUser, uid })
+      return result
    } catch (err) {
       if (err instanceof FirebaseError) {
          const errorMessage = getAuthErrorMessageFromCode(err as FirebaseError)
@@ -44,43 +39,24 @@ export const _logInWithEmailAndPassword = async (
    }
 }
 
-export const _loginInWithGoogle = async (
-   callbackErrorMessage?: callbackFunction
+export const _logInWithEmailAndPassword = async (
+   { email, password }: ILoginDetails,
+   callbackErrorMessage?: errorMessageCallbackFunction
 ) => {
    try {
-      const res = await signInWithPopup(auth, googleProvider)
-      const user = res.user
-      const q = query(collection(db, 'users'), where('uid', '==', user.uid))
-      const docs = await getDocs(q)
-
-      if (docs.docs.length === 0) {
-         await addDoc(collection(db, 'users'), {
-            uid: user.uid,
-            name: user.displayName,
-            authProvider: 'google',
-            email: user.email,
-         })
-      }
-   } catch (err) {
-      if (err instanceof FirebaseError) {
-         const errorMessage = getAuthErrorMessageFromCode(err as FirebaseError)
-         console.error(errorMessage)
-         callbackErrorMessage && callbackErrorMessage(errorMessage)
-      }
-   }
-}
-
-export const _signUpWithEmailAndPassword = async (
-   { firstName, lastName, email, password }: ISignUpDetails,
-   callbackErrorMessage?: callbackFunction
-) => {
-   try {
-      const response = await createUserWithEmailAndPassword(
+      const userCredential = await signInWithEmailAndPassword(
          auth,
          email,
          password
       )
-      return response
+      const { metadata, providerData, emailVerified, uid } = userCredential.user
+      const updatedUser = {
+         metadata,
+         providerData,
+         emailVerified,
+      }
+      await _updateUserInfoOnSignin(updatedUser, uid)
+      return userCredential
    } catch (err) {
       if (err instanceof FirebaseError) {
          const errorMessage = getAuthErrorMessageFromCode(err as FirebaseError)
@@ -91,13 +67,31 @@ export const _signUpWithEmailAndPassword = async (
    }
 }
 
-export const _logout = () => {
-   signOut(auth)
+export const _signUpWithEmailAndPassword = async (
+   { email, password }: ISignUpDetails,
+   callbackErrorMessage?: errorMessageCallbackFunction
+) => {
+   try {
+      const userCredential = await createUserWithEmailAndPassword(
+         auth,
+         email,
+         password
+      )
+
+      return userCredential
+   } catch (err) {
+      if (err instanceof FirebaseError) {
+         const errorMessage = getAuthErrorMessageFromCode(err as FirebaseError)
+         console.error(errorMessage)
+         callbackErrorMessage && callbackErrorMessage(errorMessage)
+      }
+      return false
+   }
 }
 
 export const _sendPasswordResetWithEmail = async (
    email: string,
-   callbackErrorMessage: callbackFunction
+   callbackErrorMessage?: errorMessageCallbackFunction
 ) => {
    try {
       await sendPasswordResetEmail(auth, email)
@@ -111,4 +105,8 @@ export const _sendPasswordResetWithEmail = async (
       }
       return false
    }
+}
+
+export const _logout = () => {
+   signOut(auth)
 }
