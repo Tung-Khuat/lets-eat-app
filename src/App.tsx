@@ -1,8 +1,14 @@
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import FullViewLoading from './components/feedback/loadingIndicators/FullViewLoading'
 import PrivateRoute from './PrivateRoute'
 import routes from './routes'
+import {
+   _clearUserDataFromLocal,
+   _saveUserDataToLocal,
+} from './state/appActions/app-actions'
+import { auth } from './state/store'
 
 export interface IRoute {
    title: string
@@ -16,6 +22,24 @@ export interface IRoute {
 type createRouteElementFunc = (route: IRoute, index: any) => any
 
 function App() {
+   const dispatch = useDispatch()
+
+   useEffect(() => {
+      const unsubscribe = auth.onAuthStateChanged((userAuth) => {
+         if (userAuth) {
+            dispatch(
+               _saveUserDataToLocal({
+                  uid: userAuth.uid,
+                  email: userAuth.email,
+               })
+            )
+         } else {
+            dispatch(_clearUserDataFromLocal())
+         }
+      })
+      return unsubscribe
+   }, [])
+
    // Routing
    const createRouteElement: createRouteElementFunc = (
       route: IRoute,
