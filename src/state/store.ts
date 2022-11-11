@@ -1,12 +1,14 @@
-import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
-import { connectFunctionsEmulator, getFunctions } from 'firebase/functions'
-import { firebaseReducer } from 'react-redux-firebase'
+import firebase from 'firebase/compat/app'
+import 'firebase/compat/auth'
+import 'firebase/compat/firestore'
+import 'firebase/compat/functions'
+import { getStorage } from 'firebase/storage'
 import { applyMiddleware, combineReducers, compose, createStore } from 'redux'
 import { firestoreReducer } from 'redux-firestore'
 import { load, save } from 'redux-localstorage-simple'
 import thunk from 'redux-thunk'
+import appReducer from './appActions/appReducer'
 
 const {
    VITE_FIREBASE_APIKEY,
@@ -16,7 +18,7 @@ const {
    VITE_FIREBASE_MESSAGINGSENDERID,
    VITE_FIREBASE_APPID,
    VITE_FIREBASE_MEASUREMENTID,
-   VITE_ENV,
+   VITE_FIREBASE_EMULATORS,
 } = import.meta.env
 
 // Firebase configuration
@@ -31,18 +33,24 @@ const firebaseConfig = {
 }
 
 // Initialize firebase instance
-export const firebaseApp = initializeApp(firebaseConfig)
-export const db = getFirestore(firebaseApp)
+export const REGION = 'europe-west3'
+export const firebaseApp = firebase.initializeApp(firebaseConfig)
+export const storage = getStorage(firebaseApp)
 export const auth = getAuth(firebaseApp)
-export const functions = getFunctions(firebaseApp)
+export const functions = firebaseApp.functions(REGION)
 
-if (VITE_ENV === 'development') {
-   connectFunctionsEmulator(functions, 'localhost', 5001)
+if (VITE_FIREBASE_EMULATORS === 'enabled') {
+   firebaseApp.functions(REGION).useEmulator('localhost', 5001)
+   // firebaseApp.firestore().useEmulator('localhost', 8080)
+   firebase.firestore()
+} else {
+   firebase.firestore()
+   firebase.functions()
 }
 
 const reducers = combineReducers({
-   firebaseReducer,
-   firestoreReducer,
+   app: appReducer,
+   firestore: firestoreReducer,
 })
 
 const persistedReducers = ['app', 'auth']
