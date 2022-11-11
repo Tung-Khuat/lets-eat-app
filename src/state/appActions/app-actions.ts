@@ -3,8 +3,13 @@ export interface ICurrentLocalAuthUser {
    email: string | null
 }
 
-export const _saveUserDataToLocal = (user: ICurrentLocalAuthUser) => ({
-   type: 'SAVE_USER_DATA_TO_LOCAL',
+export const _saveUserUIDToLocal = (userUID: string) => ({
+   type: 'SAVE_AUTH_USER_UID_TO_LOCAL',
+   userUID,
+})
+
+export const _saveUserToLocal = (user: ICurrentLocalAuthUser) => ({
+   type: 'SAVE_AUTH_USER_TO_LOCAL',
    user,
 })
 
