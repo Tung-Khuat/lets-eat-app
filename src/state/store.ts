@@ -50,7 +50,7 @@ if (VITE_FIREBASE_EMULATORS === 'enabled') {
 
 const reducers = combineReducers({
    app: appReducer,
-   firestore: firestoreReducer,
+   firestoreReducer: firestoreReducer,
 })
 
 const persistedReducers = ['app', 'auth']
