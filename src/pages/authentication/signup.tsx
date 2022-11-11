@@ -8,7 +8,9 @@ import {
 import { IconButton } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
+import { connect } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { bindActionCreators, compose } from 'redux'
 import styled from 'styled-components'
 import FoodBackground from '../../assets/foodbackground5.jpg'
 import FilledButton from '../../components/buttons/FilledButtons'
@@ -21,6 +23,7 @@ import {
    Subtitle,
 } from '../../components/StyledComponents/typography'
 import { _signUpWithEmailAndPassword } from '../../state/firebaseActions/auth-actions'
+import * as userActions from '../../state/firebaseActions/user-actions'
 import { auth } from '../../state/store'
 import ContentWithImageBackgroundLayout from '../layouts/ContentWithImageBackgroundLayout'
 import { EMAIL_REGEX, MIN_PASSWORD_LENGTH, PASSWORD_REGEX } from './config'
@@ -49,7 +52,11 @@ const PasswordIconButton = styled(IconButton)`
    }
 `
 
-const SignUpPage = () => {
+interface ISignUpPage {
+   _createUser: (user: userActions.INewUser) => void
+}
+
+const SignUpPage = ({ _createUser }: ISignUpPage) => {
    const [signUpDetails, setSignUpDetails] = useState({
       firstName: '',
       lastName: '',
@@ -77,9 +84,29 @@ const SignUpPage = () => {
       if (validForm) {
          setProcessing(true)
 
-         await _signUpWithEmailAndPassword(signUpDetails, (errorMessage) =>
-            setHelperText(errorMessage)
+         const userCredential = await _signUpWithEmailAndPassword(
+            signUpDetails,
+            (errorMessage) => setHelperText(errorMessage)
          )
+
+         if (userCredential) {
+            const { uid, email, metadata } = userCredential.user
+            const { firstName, lastName } = signUpDetails
+            const newUserData = {
+               uid,
+               email,
+               metadata,
+               firstName,
+               lastName,
+               displayName: `${firstName} ${lastName}`,
+            }
+
+            try {
+               await _createUser(newUserData)
+            } catch (error) {
+               console.error({ error })
+            }
+         }
 
          setProcessing(false)
       }
@@ -190,4 +217,10 @@ const SignUpPage = () => {
    )
 }
 
-export default SignUpPage
+const mapDispatchToProps = (dispatch: any) => ({
+   _createUser: bindActionCreators(userActions._createUser, dispatch),
+})
+
+export default compose<React.FunctionComponent>(
+   connect(null, mapDispatchToProps)
+)(SignUpPage)
