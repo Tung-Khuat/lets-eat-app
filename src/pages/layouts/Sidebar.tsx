@@ -19,10 +19,11 @@ const SidebarCard = styled(StandardCard)`
    padding: 0;
 `
 const Logo = styled.div`
-   margin-block: 48px;
+   margin-top: 72px;
+   margin-bottom: 48px;
 `
 const MenuGroup = styled.ul`
-   margin: 72px 40px;
+   margin: 56px 40px;
    padding: 0;
    font-size: 1.2em;
    position: relative;
