@@ -1,6 +1,12 @@
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
+export const LogoFont = styled.div`
+   font-size: 52px;
+   line-height: 48px;
+   font-weight: 600;
+   font-family: 'Parisienne', cursive;
+`
 export const PageTitle = styled.header`
    font-size: 52px;
    line-height: 40px;
